@@ -10,3 +10,7 @@ def save_file(content: bytes) -> str:
 
 def get_file_extension(filename: str) -> str:
     return os.path.splitext(filename)[1].lower()
+
+def delete_file(filepath: str) -> None:
+    if os.path.exists(filepath):
+        os.remove(filepath)
