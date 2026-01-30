@@ -1,11 +1,14 @@
 import jwt
 from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel, ValidationError
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
 from pwdlib import PasswordHash
 from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
 
+from utils.database import get_db
 from core.config import settings
+from models.user import User
 
 # Where to get token from
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
@@ -51,6 +54,15 @@ def decode_token(token: str) -> TokenData:
     except ValidationError:
         raise credentials_exception
     
+def get_current_user(
+    db: Session = Depends(get_db),
+    token: str = Depends(oauth2_scheme)
+) -> User:
+    token_data = decode_token(token)
+    user = db.query(User).filter(User.username == token_data.sub).first()
+    if user is None:
+        raise credentials_exception
+    return user
 
 # Password
 # Define password hashing scheme
