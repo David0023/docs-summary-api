@@ -3,8 +3,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from email_validator import EmailNotValidError
 from utils.validator import validate_email_address
-from utils.database import get_db
-from utils.auth import verify_password, create_access_token, hash_password
+from core.dependencies import get_db
+from core.security import verify_password, create_access_token, hash_password
 from models.user import User
 from schemas.user import UserCreateResponse, UserCreateRequest
 

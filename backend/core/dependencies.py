@@ -1,10 +1,19 @@
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from typing import Generator
 
 from core.security import decode_token, credentials_exception
-from utils.database import get_db
+from core.database import SessionLocal
 from models.user import User
+
+# Open a new session
+def get_db() -> Generator:
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 # Where to get token from
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
