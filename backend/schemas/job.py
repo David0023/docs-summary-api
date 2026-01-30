@@ -9,7 +9,7 @@ class JobBase(BaseModel):
 class JobCreateRequest(JobBase):
     pass
 
-class JobCreateResponse(JobBase):
+class JobViewResponse(JobBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
     user_id: int
