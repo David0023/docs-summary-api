@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from core.enums import JobStatus
+from schemas.document import DocumentAttachResponse
 
 class JobBase(BaseModel):
     title: str
@@ -17,3 +18,4 @@ class JobViewResponse(JobBase):
     result: str | None = None
     created_at: datetime
     updated_at: datetime
+    documents: list[DocumentAttachResponse] = []
