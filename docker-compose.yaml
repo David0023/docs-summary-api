@@ -21,6 +21,8 @@ services:
       SECRET_KEY: secret_key_value
     ports:
       - "8000:8000"
+    volumes:
+      - ./uploads:/backend/uploads
     depends_on:
       - db
     
