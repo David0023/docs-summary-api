@@ -2,9 +2,6 @@ from models.base import BaseModel, TimestampMixin
 from sqlalchemy import Column, Integer, String, Text, Enum as SqlEnum, ForeignKey
 from sqlalchemy.orm import relationship
 
-from core.enums import DocumentStatus
-
-
 class Document(BaseModel):
     __tablename__ = "documents"
 
@@ -19,6 +16,5 @@ class Document(BaseModel):
     # Saved file path (name randomized for uniqueness)
     filepath = Column(String(500), nullable=False)
     content_type = Column(String(100), nullable=False)
-    status = Column(SqlEnum(DocumentStatus), default=DocumentStatus.empty, nullable=False)
 
     job = relationship("Job", back_populates="documents")
