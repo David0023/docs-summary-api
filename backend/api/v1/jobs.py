@@ -3,9 +3,11 @@ from sqlalchemy.orm import Session
 from core.dependencies import get_db, get_current_user
 from core.enums import JobStatus
 from models.job import Job
+from models.document import Document
 from models.user import User
 from schemas.job import JobCreateRequest, JobViewResponse
 from services.job_process import process_job
+from utils.file import delete_file
 
 router = APIRouter(
     prefix="/api/v1",
@@ -57,6 +59,11 @@ def delete_job(
     job = db.query(Job).filter(Job.id == job_id, Job.user_id == current_user.id).first()
     if not job:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
+
+    docs = db.query(Document).filter(Document.job_id == job_id).all()
+    for doc in docs:
+        delete_file(doc.filepath)
+        db.delete(doc)
     db.delete(job)
     db.commit()
     return

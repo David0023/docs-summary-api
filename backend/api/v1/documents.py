@@ -3,12 +3,11 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from core.config import settings
 from core.dependencies import get_db, get_current_user
-from core.enums import DocumentStatus
 from models.document import Document
 
 from models.user import User
 from models.job import Job
-from utils.file import save_file
+from utils.file import save_file, get_file_extension
 from schemas.document import DocumentAttachResponse
 
 
@@ -43,14 +42,13 @@ async def attach_document(
     if file.content_type and actual_type != file.content_type:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Content type mismatch")
 
-    filepath = save_file(content)
+    filepath = save_file(content, get_file_extension(file.filename))
 
     new_document = Document(
         job_id=job_id,
         filename=file.filename,
         filepath=filepath,
         content_type=actual_type,
-        status=DocumentStatus.uploaded
     )
     db.add(new_document)
     db.commit()
