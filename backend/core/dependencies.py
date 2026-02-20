@@ -1,29 +1,30 @@
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.orm import Session
-from typing import Generator
+from sqlalchemy.ext.asyncio import AsyncSession 
+from typing import AsyncGenerator
 
 from core.security import decode_token, credentials_exception
 from core.database import SessionLocal
 from models.user import User
+from repositories.user_repository import get_one_user
 
 # Open a new session
-def get_db() -> Generator:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     db = SessionLocal()
     try:
         yield db
     finally:
-        db.close()
+        await db.close()
 
 # Where to get token from
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
-def get_current_user(
-    db: Session = Depends(get_db),
+async def get_current_user(
+    db: AsyncSession = Depends(get_db),
     token: str = Depends(oauth2_scheme)
 ) -> User:
     token_data = decode_token(token)
-    user = db.query(User).filter(User.username == token_data.sub).first()
+    user = await get_one_user(db, username=token_data.sub)
     if user is None:
         raise credentials_exception
     return user

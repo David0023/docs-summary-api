@@ -1,6 +1,6 @@
 from magic import from_buffer
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from core.config import settings
 from core.dependencies import get_db, get_current_user
 from models.document import Document
@@ -9,6 +9,8 @@ from models.user import User
 from models.job import Job
 from utils.file import save_file, get_file_extension
 from schemas.document import DocumentAttachResponse
+from repositories.job_repository import get_one_job
+from repositories.document_repository import get_one_document, get_many_documents, create_document
 
 
 router = APIRouter(
@@ -20,13 +22,10 @@ router = APIRouter(
 async def attach_document(
     job_id: int,
     file: UploadFile = File(...),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if not current_user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
-    
-    job = db.query(Job).filter(Job.id == job_id).first()
+    job = await get_one_job(db, id=job_id)
     if not job:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
     if job.user_id != current_user.id:
@@ -44,13 +43,5 @@ async def attach_document(
 
     filepath = save_file(content, get_file_extension(file.filename))
 
-    new_document = Document(
-        job_id=job_id,
-        filename=file.filename,
-        filepath=filepath,
-        content_type=actual_type,
-    )
-    db.add(new_document)
-    db.commit()
-    db.refresh(new_document)
+    new_document = await create_document(db, job_id=job_id, filename=file.filename, filepath=filepath, content_type=actual_type)
     return new_document

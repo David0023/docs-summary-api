@@ -17,7 +17,7 @@ services:
       dockerfile: backend/dockerfile
     container_name: docs_summary_backend
     environment:
-      DATABASE_URL: postgresql://postgres:password@db:5432/postgres_db
+      DATABASE_URL: postgresql+asyncpg://postgres:password@db:5432/postgres_db
       SECRET_KEY: secret_key_value
       OPENAI_API_KEY: ${OPENAI_API_KEY}
     ports:

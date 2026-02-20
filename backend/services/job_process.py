@@ -7,21 +7,22 @@ from models.document import Document
 from core.enums import JobStatus
 from core.config import settings
 from utils.file import delete_file
+from repositories.job_repository import get_one_job
+from repositories.document_repository import get_many_documents
 
-openai_client = OpenAI(api_key=settings.OPENAI_API_KEY)
-
-def process_job(job_id: int):
+async def process_job(job_id: int):
     db = SessionLocal()
     try:
-        job = db.query(Job).filter(Job.id == job_id).first()
-        documents = db.query(Document).filter(Document.job_id == job_id).all()
+        job = await get_one_job(db, id=job_id)
         if not job:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
         if job.status != JobStatus.in_progress:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Job is not in progress status")
+        
+        documents = await get_many_documents(db, job_id=job_id)
 
         result = ""
-        with OpenAI() as client:
+        with OpenAI(api_key=settings.OPENAI_API_KEY) as client:
             content = [{"type": "text", "text": "Summarize the following documents."}]
             
             # 1. File upload and ID collection
@@ -39,7 +40,7 @@ def process_job(job_id: int):
                         }
                     })
 
-            # 2. Chat Completion 요청
+            # 2. Chat Completion Request
             response = client.chat.completions.create(
                 model="gpt-4o",
                 messages=[{"role": "user", "content": content}]
@@ -63,12 +64,12 @@ def process_job(job_id: int):
         for doc in documents:
             delete_file(doc.filepath)
             db.delete(doc)
-        db.commit()
+        await db.commit()
 
     except Exception as e:
-        db.rollback()
+        await db.rollback()
         job.result = f"Job failed with error: {str(e)}"
         job.status = JobStatus.failed
-        db.commit()
+        await db.commit()
     finally:
-        db.close()
+        await db.close()

@@ -90,7 +90,7 @@ pip install -r requirements.txt
 Set the required environment variables:
 
 ```bash
-export DATABASE_URL="postgresql://postgres:password@localhost:5432/postgres_db"
+export DATABASE_URL="postgresql+asyncpg://postgres:password@localhost:5432/postgres_db"
 export SECRET_KEY="your-secret-key"
 export OPENAI_API_KEY="sk-..."
 ```
