@@ -1,7 +1,7 @@
 from typing import List
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from backend.models import User
+from models.user import User
 
 async def get_one_user(db: AsyncSession, **kwargs) -> User | None:
     query = select(User).filter_by(**kwargs)

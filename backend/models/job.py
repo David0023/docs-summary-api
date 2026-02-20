@@ -15,4 +15,4 @@ class Job(BaseModel, TimestampMixin):
     status = Column(SqlEnum(JobStatus), default=JobStatus.pending, nullable=False)
     result = Column(Text, nullable=True)
 
-    documents = relationship("Document", back_populates="job")
+    documents = relationship("Document", back_populates="job", lazy="selectin")
