@@ -10,11 +10,8 @@ from repositories.user_repository import get_one_user
 
 # Open a new session
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    db = SessionLocal()
-    try:
+    async with SessionLocal() as db:
         yield db
-    finally:
-        await db.close()
 
 # Where to get token from
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")

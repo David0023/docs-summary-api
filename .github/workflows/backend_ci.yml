@@ -1,0 +1,48 @@
+name: backend-ci
+
+on:
+    push:
+        branches: ["**"]
+
+jobs:
+    test-and-build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: start docker compose for db
+              run: docker compose up -d db
+
+
+            - name: setup python
+              uses: actions/setup-python@v5
+              with:
+                python-version: '3.12'
+
+            - name: install dependencies
+              run: |
+                pip install -r backend/requirements.txt
+                pip install pytest pytest-asyncio httpx
+
+            - name: wait for db
+              run: sleep 10
+
+            - name: run tests
+              env:
+                # Should change this later
+                DATABASE_URL: postgresql+asyncpg://postgres:password@localhost:5432/postgres_db
+                SECRET_KEY: secret_key_value
+              run: |
+                export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
+                pytest backend/
+
+            - name: build backend
+              run: docker compose build
+
+            - name: cleanup
+              if: always()
+              run: docker compose down
+
+

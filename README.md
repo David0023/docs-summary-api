@@ -41,9 +41,11 @@ backend/
 │   ├── security.py      # JWT + password hashing
 │   └── enums.py         # JobStatus enum
 ├── models/              # SQLAlchemy ORM models
+├── repositories/        # CRUD
 ├── schemas/             # Pydantic request/response schemas
 ├── services/
 │   └── job_process.py   # OpenAI summarization logic
+└── tests/               # pytest
 └── utils/
     ├── file.py          # File save/delete helpers
     └── validator.py     # Email validation
