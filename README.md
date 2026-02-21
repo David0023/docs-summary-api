@@ -27,6 +27,7 @@ Asynchronous REST API that summarizes uploaded documents using OpenAI's GPT-4o m
 ```
 backend/
 ├── main.py              # App entry point, table creation
+├── alembic/             # Alembic migrations with versions
 ├── api/
 │   ├── auth.py          # /auth/register, /auth/login
 │   └── v1/
@@ -75,6 +76,11 @@ cp .env.example .env
 
 ```bash
 docker compose up --build
+```
+
+4. (Optional) Alembic migrations
+```bash
+docker exec -ti <docker-container-name> alembic revision --autogenerate -m "Initial database"
 ```
 
 The API will be available at `http://localhost:8000`. Interactive docs (Swagger UI) are at `http://localhost:8000/docs`.

@@ -24,6 +24,7 @@ services:
       - "8000:8000"
     volumes:
       - ./uploads:/backend/uploads
+      - ./backend:/backend
     depends_on:
       - db
     
