@@ -13,7 +13,7 @@ router = APIRouter(
     tags=["auth"]
 )
 
-@router.post("/register", response_model=UserCreateResponse)
+@router.post("/register", response_model=UserCreateResponse, status_code=status.HTTP_201_CREATED)
 async def register(
     user_data: UserCreateRequest,
     db: AsyncSession = Depends(get_db)
@@ -42,7 +42,7 @@ async def register(
     return new_user
     
 
-@router.post("/login")
+@router.post("/login", status_code=status.HTTP_200_OK)
 async def login(
     db: AsyncSession = Depends(get_db), 
     form_data: OAuth2PasswordRequestForm = Depends()

@@ -18,7 +18,7 @@ router = APIRouter(
     tags=["documents"]
 )
 
-@router.post("/attach/{job_id}", response_model=DocumentAttachResponse)
+@router.post("/attach/{job_id}", response_model=DocumentAttachResponse, status_code=status.HTTP_200_OK)
 async def attach_document(
     job_id: int,
     file: UploadFile = File(...),

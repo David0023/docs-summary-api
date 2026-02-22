@@ -17,7 +17,7 @@ router = APIRouter(
     tags=["v1"]
 )
 
-@router.post("/jobs", response_model=JobViewResponse)
+@router.post("/jobs", response_model=JobViewResponse, status_code=status.HTTP_201_CREATED)
 async def create_jobs(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -34,14 +34,14 @@ async def create_jobs(
     await db.refresh(new_job)
     return new_job
 
-@router.get("/jobs", response_model=list[JobViewResponse])
+@router.get("/jobs", response_model=list[JobViewResponse], status_code=status.HTTP_200_OK)
 async def list_jobs(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     return await get_many_jobs(db, user_id=current_user.id)
 
-@router.get("/jobs/{job_id}", response_model=JobViewResponse)
+@router.get("/jobs/{job_id}", response_model=JobViewResponse, status_code=status.HTTP_200_OK)
 async def get_job(
     job_id: int,
     db: AsyncSession = Depends(get_db),
@@ -70,7 +70,7 @@ async def delete_job(
     await db.commit()
     return
 
-@router.post("/jobs/{job_id}/run")
+@router.post("/jobs/{job_id}/run", status_code=status.HTTP_202_ACCEPTED)
 async def run_job(
     job_id: int,
     background_tasks: BackgroundTasks,
